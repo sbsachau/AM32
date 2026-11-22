@@ -1,0 +1,27 @@
+name: Unit tests
+
+# Host-side unit tests (Ceedling + Unity). They run on the build machine,
+# no target hardware and no ARM toolchain needed. See docs/adr/0001-*.md.
+
+on:
+  push:
+    branches: [ main, 'feature/**' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  ceedling:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+
+      - name: Install Ceedling
+        run: gem install ceedling -v 1.2.3
+
+      - name: Run unit tests
+        run: ceedling test:all

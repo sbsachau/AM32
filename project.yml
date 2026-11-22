@@ -1,0 +1,53 @@
+---
+# Ceedling configuration for host-based unit tests (Unity + CMock).
+# Runs on the PC with the host compiler; it does not touch the firmware build
+# (Makefile / *makefile.mk). Run:  ceedling test:all
+:project:
+  :build_root: build/ceedling
+  :use_exceptions: FALSE
+  :use_test_preprocessor: :none
+  :use_deep_dependencies: :none
+  :test_file_prefix: test_
+  :default_tasks:
+    - test:all
+
+:paths:
+  :test:
+    - +:test/**
+    - -:test/support
+  :source:
+    - Src
+    - test/support   # test doubles; each test pulls in what it needs via TEST_SOURCE_FILE()
+  :include:
+    # NOTE: Ceedling emits these as -I. Inc/signal.h therefore shadows the system
+    # <signal.h>; fine as long as no test pulls in Mcu/SITL/Src/sitl_main.c or
+    # sitl_sched.c (the only files that include it). sitlmakefile.mk uses -iquote.
+    - Inc
+    - test/support
+    - Mcu/SITL/Inc
+    - Mcu/SITL/sim
+
+# Same host configuration the SITL target uses (Mcu/SITL).
+:defines:
+  :test:
+    :*:
+      - AM32_SITL_CAN
+      - _GNU_SOURCE
+      # targets.h renames the firmware's main() to am32_main() for the SITL build.
+      # Map it back so Ceedling's generated test runner can still define main().
+      - am32_main=main
+
+:flags:
+  :test:
+    :compile:
+      :*:
+        - -funsigned-char      # char is unsigned on the ARM targets
+        - -fno-strict-aliasing
+        - -Wall
+        - -Wundef
+        - -Wno-unused-parameter
+
+:plugins:
+  :enabled:
+    - report_tests_pretty_stdout
+...
