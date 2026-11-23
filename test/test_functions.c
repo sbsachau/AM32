@@ -95,6 +95,12 @@ void test_getAbsDif_handles_negative_numbers_and_zero_difference(void)
     TEST_ASSERT_EQUAL_UINT32(0, getAbsDif(5, 5));
 }
 
+void test_getAbsDif_handles_the_largest_int_magnitudes(void)
+{
+    TEST_ASSERT_EQUAL_UINT32(2147483647, getAbsDif(0, 2147483647));
+    TEST_ASSERT_EQUAL_UINT32(2147483647, getAbsDif(-2147483647, 0));
+}
+
 /* ---- CRC-8 (polynomial 0x07, initial value 0) ------------------------------ */
 
 void test_get_crc8_matches_the_standard_check_vector(void)
